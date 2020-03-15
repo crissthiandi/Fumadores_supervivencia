@@ -1,0 +1,858 @@
+\documentclass[10pt,letterpaper]{article}
+\usepackage[latin1]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{makeidx}
+\usepackage{graphicx,subfig,wrapfig,tabularx,multicol,verbatim,booktabs}
+\usepackage{rotating} % Para girar tablas
+\usepackage[left=1.9cm, right=1.9cm, top=2cm, bottom=2cm]{geometry}
+\usepackage{setspace}
+\usepackage{cprotect}
+\usepackage{enumerate}
+\usepackage[spanish,es-tabla]{babel}
+\usepackage{multirow,tabularx}
+\usepackage{booktabs,colortbl}
+
+\spanishdecimal{.}
+\usepackage{fancyhdr}
+\usepackage{color, xcolor}
+\usepackage{blindtext}
+\usepackage{hyperref} %para poner hipervínculos
+\hypersetup{
+	colorlinks=true,
+	linkcolor=blue,
+	filecolor=magenta,      
+	urlcolor=cyan,
+	pdftitle={Sharelatex Example},
+	bookmarks=true,
+	pdfpagemode=FullScreen, %pone en pantalla completa el documento
+}
+\urlstyle{same}
+%\usepackage{calrsfs}  %% Letras caligráficas, sólo ponemos en entorno 
+%%%matemático $\mathcal{Letra}$
+%\usepackage{actuarialsymbol} %% Simbología Actuarial
+%\usepackage{actuarialangle}  
+
+
+
+\newtheorem{defini}{Definición}[section]
+\pagestyle{fancy}
+\fancyhead{}
+\fancyfoot{}
+\cfoot{\thepage}
+\rfoot{Análisis de Superviviencia, Actuaría.}
+\lfoot{VJC}
+\renewcommand{\footrulewidth}{0.4pt}
+\renewcommand{\headrulewidth}{0pt}
+%% \xrightarrow{texto}: es para poner texto sobre flechas, por ejemplo para notación de convergencias. %%
+
+
+\begin{document}
+	
+	\begin{figure}[h]
+		\raggedright
+		\includegraphics[scale=.22]{imagenes/q}\hfill
+		\includegraphics[scale=.15]{imagenes/w}
+	\end{figure}
+	
+	\begin{center}
+		{\LARGE \textbf{\sc aplicación del modelo de riesgos proporcionales de 
+		cox \newline \newline a un grupo de personas en edad avanzada 
+		aseguradas}}\\
+		\vspace{4mm}
+		{\large Verónica Bañuelos Martínez$ ^* $, Julio A. de la Cruz Canul 
+		Medina$ ^* $, Cristhian A. Díaz Chablé$ ^* $.}\\
+		\vspace{7.5mm}
+		$^*$\textit{Universidad Autónoma de Yucatán. Facultad de Matemáticas.}
+	\end{center}
+	
+	\begin{center}
+		\textcolor{black}{\rule{150mm}{0.5mm}}
+	\end{center}
+	
+	\begin{abstract}
+		La mortalidadd de las personas  en edad avanzada está influenciada por 
+		diversos factores de riesgo como son la edad, sexo, tabaquismo, entre 
+		otros. En el presente reporte se aplicó el modelo de riesgos 
+		proporcionales de Cox para estimar no sólo la mortalidad de una 
+		población de edad avanzada asegurada, sino también el efecto que tienen 
+		ciertos factores en relación con dicha mortalidad.
+		La base de datos utilizada fue proporcionada por el maestro en el curso 
+		de Análisis de Supervivencia.
+		
+		\vspace{2mm}
+		\underline{\textbf{Palabras clave:}} \hspace{1mm} \textit{Seguros de 
+		vida, Seguro para fumadores,Tiempo de vida, Modelo de Cox.}
+	\end{abstract}
+	
+	\begin{center}
+		\textcolor{black}{\rule{150mm}{0.5mm}}
+	\end{center}
+	
+	\vspace{5mm}
+\begin{multicols}{2}
+	\onehalfspacing
+    
+    \section{Introducción}
+    	
+    	Tanto para sistemas de pensiones como para seguros de vida, la mayor 
+    	inquietud es el poder estimar los tiempos de vida de las personas 
+    	inscritas en estos sistemas, ya que dicha estimación es la pieza clave 
+    	de su costeo.
+    	
+    	No es un tema nuevo el hablar de la tendencia positiva de la esperanza 
+    	de vida alrededor del globo, debida a diversos factores como los 
+    	avances en la tecnología, mayor acceso a la salud, mejor calidad de 
+    	vida, etc. Por supuesto, conforme la esperanza de vida se modifica 
+    	también lo hace la industria aseguradora. 
+    	
+    	En el campo de seguros de vida, por ejemplo, dicha tendencia podría 
+    	llevar a un aumento del número de clientes potenciales, ya que al 
+    	disminuir la mortalidad en edades avanzadas, se incrementa el límite de 
+    	edad en que es factible brindar un seguro de vida a un segmento de la 
+    	población.
+    	
+    	Sin embargo, antes de aceptar emitir estas pólizas, se deben realizar 
+    	los estudios pertinentes para entender mejor la mortalidad de la 
+    	población de edad avanzada.
+    	
+    	En el siguiente reporte, pretendemos tener un mejor acercamiento de 
+    	dicha mortalidad al aplicar un modelo de riesgos proporcionales de Cox. 
+    	Ya que ésta se ve influenciada por diversos factores como cualquier 
+    	otra población, tales como el género, edad, tabaquismo, entre otros. 
+    	Mediante el uso de software estadístico R, no sólo buscamos estimar la 
+    	mortalidad si no también el efecto que tienen algunos factores en el 
+    	tiempo de vida de los asegurados. Definiendo como tiempo de vida el 
+    	número de meses desde la fecha de emisión de una póliza hasta la fecha 
+    	de fallecimiento del titular de la póliza.
+    	
+    	\indent Los productos (seguros) que fueron parte del estudio consisten 
+    	en lo siguiente:
+    	\begin{itemize}
+    		\item Term: seguro de vida que garantiza el pago de un beneficio por fallecimiento declarado durante un plazo especificado. Conocido en español como seguro de vida temporal.
+    		\cite{term}
+    		\item Whole life: seguro de vida que proporciona cobertura para el titular del contrato durante toda su vida. Ante la muerte inevitable del titular, el pago del seguro se realiza a los beneficiarios del contrato. Conocido en español como ordinario de vida.
+    		\cite{whole}
+    		\item Universal life: seguro de vida permanente con un elemento de ahorro de inversión y primas bajas como el seguro de vida temporal. La mayoría de las pólizas de seguro de vida universal contienen una opción de prima flexible. Sin embargo, algunos requieren una prima única o primas fijas programadas. Traducido al español como seguro de vida universal. \cite{universal}
+    		\item Other: cualquier otro tipo de seguro de vida.	
+    	\end{itemize}
+    	Se cuenta con una base de datos proporcionada por el profesor del curso de Análisis de Supervivencia basada en la utilizada en el documento titulado ``Estimating Mortality of Insured Advanced-age Population With Cox Regression Model``. Dicha base de datos esta compuesta por las siguientes variables:
+    	\begin{itemize}
+    		\item \verb|Fumar|: Variable indicadora que denota si el asegurado 
+    		fuma (valor 0) o no fuma (valor 1)
+    		\item \verb|Producto|: Indica el tipo de seguro que el asegurado 
+    		tiene, toma valores de 1,2,3 y 4, para Term, Whole  life, Universal 
+    		life y Other respectivamente.
+    		\item \verb|Sexo|: Indica si el asegurado es hombre (valor 1) o 
+    		mujer (valor 0)
+    		\item \verb|Edad|: Indica el número de años cumplidos del asegurado en el momento que se emitió la póliza.
+    		\item \verb|Censura|: Indica si hubo censura  por la derecha (valor 0) al 
+    		recopilar los datos o si ocurrió el evento (valor 1).
+    		\item \verb|Tiempo|: número de meses desde la fecha de emisión de la póliza hasta la fecha de fallecimiento del titular de la póliza o de la que se tiene último registro.
+    	\end{itemize}
+	    \indent Definimos como tiempo de vida al número de meses desde la fecha de emisión de una póliza hasta la fecha de fallecimiento del titular de la póliza. 
+	    El evento de interés entonces es la reclamación de la póliza.\\
+	   \indent Cabe mencionar que al haberse realizado el estudio en una ventana de tiempo de 123 meses, posiblemente nos encontraremos con datos censurados.
+	   Ya que el Análisis de supervivencia es una herramienta estadística ideal para modelar variables del tipo "tiempo hasta que ocurre un evento de interés", más aún, cuando hay censura en los datos, es una herramienta adecuada para llegar al objetivo de este estudio.
+	    \subsection{Metodología y cuestiones técnicas}
+	    
+	    A continuación se hablará acerca de  
+	    ciertas definiciones como son curva de supervivencia, 
+	    función de riesgo, modelo de Cox, riesgo proporcionales y otras 
+	    cuestiones técnicas a usar.\\
+	    Primero definimos el concepto de función de supervivencia,
+	    \begin{defini}\label{superv}
+	    	Sea $ t>0 $ y sea $ T $ una v.a. positiva, entonces se define $ 
+	    	S_T(t) $ como la función de supervivencia de la variable $ T $ tal 
+	    	que:
+	    	$$S_T(t)=\int_{t}^{\infty}f_T(t)dt$$
+	    \end{defini}
+	    de esta función podemos deducir la función de riesgo (Hazard Risk),
+	    \begin{defini}
+	    	Sea $ t,T,S_T(t) $ como en (\ref{superv}), entonces se verifica que,
+	    	$$h_T(t)=\frac{d[\ln(S_T(t))]}{dt}$$
+	    	donde $ h_T(t) $ es la función de riesgo de la v.a. $T$
+	    \end{defini} 
+	    Por otro lado, el modelo de Cox se define de la siguiente manera,
+	    \begin{defini}
+	    	Sea $ X=(X_1,X_2,...,X_n)' $ el vector con las covariables de 
+	    	interés y $\beta = (\beta_1,\beta_2,...,\beta_p)$. Entonces el 
+	    	modelo de riesgos proporcionales de Cox, se define como:
+	    	\begin{align*}
+	    	h_T(t;X)&=h_0(t) \exp[\beta*X] \\
+	    			&=h_0(t) \exp\left[ \sum_{i=1}^{n} \beta_i*X_i\right] 
+	    	\end{align*}
+	    	La función $h_0$ se interpreta como la función de riesgo de los
+	    	individuos cuando el valor de todas las covariables es cero.
+	    \end{defini}
+	    Cabe mencionar que $\beta = (\beta_1,\beta_2,...,\beta_p)$ es el vector de coeficientes a ser estimado. \\ \indent De lo anterior podemos deducir que se cumple lo siguiente,
+	    \begin{align*}
+	    h_T(t;X)&=-\frac{d[\ln[S_T(t)]]}{dt} \\
+	    		&=h_0(t) \exp[\beta*X] \\
+	    		&=-\frac{d[\ln[S_0(t)]]}{dt} \exp[\beta*X]
+	    \end{align*}
+	    Integrando de $0$ a $t$ y al notar que $\ln(1)=0$ obtenemos que,
+	    \begin{align*}
+	    \ln[S_T(t)]&=\ln[S_0(t)]\exp[\beta*X] \\
+	    		&=\ln[S_0(t)^{ \exp[\beta*X]}]
+	    \end{align*}
+	    Por lo que
+	    \begin{align*}
+	    S_T(t)=S_0(t)^{ \exp\left[ \beta*X\right] } \mbox{         , t$\geq 0$}
+	    \end{align*}
+	    La función de supervivencia de una muestra con censura por la derecha 
+	    puede ser estimada vía Máxima Verosimilitud (Kaplan Meir), y por el 
+	    resultado anterior para riesgos proporcionales, se puede estimar usando 
+	    dicha curva de supervivencia, una nueva curva de supervivencia que 
+	    contemple los nuevos factores de riesgo.
+
+	    
+	    \section{Análisis Exploratorio}
+	     Como parte de un preprocesamiento de datos, se realizó una búsqueda de errores en los registros, así como posibles incoherencias entre 
+	    las variables. No se encontró ninguno de estos.
+	    Para cada una de las variables se tiene un total de 145 datos, es decir, tampoco se hallaron datos faltantes.
+	\end{multicols}
+
+		\begin{table}[htbp]
+			\caption{Resumen de las variables}
+			\resizebox{1\linewidth}{!}{
+			\begin{tabular}{rrrlrl}
+				\toprule
+				\multicolumn{1}{l}{\textbf{Fumar}} & \multicolumn{1}{l}{\textbf{Producto}} & \multicolumn{1}{l}{\textbf{Sexo}} & \textbf{Edad} & \multicolumn{1}{l}{\textbf{Censura}} & \textbf{ Tiempo      } \\
+				\midrule
+				\multicolumn{1}{l}{Fuma: 65} & \multicolumn{1}{l}{Term: 33} & \multicolumn{1}{l}{Mujer: 80} & Min. : 65.00 & 0     &  Min.   :  3.00   \\
+				\multicolumn{1}{l}{No Fuma: 80} & \multicolumn{1}{l}{Whole Life: 40} & \multicolumn{1}{l}{Hombre: 65} & 1st Qu.: 71.00 & 1     &  1st Qu.: 12.00   \\
+				& \multicolumn{1}{l}{Universal Life: 32} &       & Median : 79.00 &       &  Median : 32.00   \\
+				& \multicolumn{1}{l}{Other: 40} &       & Mean   : 77.57 &       &  Mean   : 38.11   \\
+				&       &       & 3rd Qu.: 83.00 &       &  3rd Qu.: 54.00   \\
+				&       &       & Max.  : 90.00 &       &  Max.   :123.00  \\
+			\end{tabular}}
+			\label{tab:summary}%
+		\end{table}%
+
+	    \begin{multicols}{2}
+		
+		De la Tabla \ref{tab:summary} podemos observar la distribución de los 
+		asegurados correspondiente para cada variable. Del total de 145 
+		registros, el 41\% está censurado. La mayoría de la población no fuma, 
+		tenemos que 65 asegurados fuman y 80 no tienen este hábito.
+		En cuanto a la elección del producto, los más populares son Whole Life 
+		y 
+		los pertenecientes a la categoría Otros. Sin embargo la elección es más 
+		o menos uniforme, hay aproximadamente un cuarto de la población en cada 
+		producto.
+		La mayoría de la población es femenina.
+		La edad mínima de contratación de la póliza es 65 años, la máxima 90 
+		años y en promedio el asegurado tiene 77.57 años al contratar. En 
+		cuanto al tiempo, se tiene que el mínimo en que se reclamó la póliza a 
+		partir de que fue contratada son de 3 meses, el máximo fue 123 meses, 
+		más de 10 años, y en promedio, se tomaron 38.11 meses antes de ser 
+		reclamada la póliza.
+		
+		\subsection{Curvas de supervivencia}
+		
+		La figura \ref{fig:survivaltabaquismo} parece sugerir que no hay 
+		diferencia entre la curva de supervivencia de los fumadores y no 
+		fumadores, y por lo tanto, no existe diferencia entre el tiempo en que 
+		un no fumador reclama su póliza al de un no fumador.
+		
+		Mientras que analizando la figura \ref{fig:survivalproducto} se puede 
+		observar que sí parece haber diferencias entre las curvas de 
+		supervivencia de las personas que contrataron Whole Life y Otros con 
+		respecto a los que contrataron Universal Life, sobretodo en meses 
+		avanzados. 
+		
+		Por otro lado, La figura \ref{fig:survivalsexo}  parece sugerir que no 
+		hay diferencia entre la curva de supervivencia de hombres y mujeres, y 
+		por lo tanto, no existe diferencia entre el tiempo en que un hombre 
+		reclama su póliza con respecto al de las mujeres.
+		
+		Por último, en la figura \ref{fig:survivaledad} se puede observar que 
+		sí parece haber diferencias entre las curvas de supervivencia de las 
+		personas que al contratar su póliza tenían entre 80 y 84 años con 
+		respecto a las personas de 69 años o menos. Mismo es el caso para el 
+		grupo de personas de 85 años o más con respecto a las personas de 69 
+		años o menos. Lo cuál sugiere que existe diferencia entre el tiempo de 
+		vida para diferentes rangos de edad al momento de contratar la póliza.
+	\end{multicols}
+		\newpage
+		
+		\begin{figure}[!htb]
+			\centering
+			\subfloat[Estimación de las curvas de supervivencia de la \mbox{  }
+			variable tiempo en meses por estatus de fumador.]{
+				\label{fig:survivaltabaquismo}
+				\includegraphics[width=0.4\linewidth]{imagenes/tabaquismo}}
+			\subfloat[Estimación de las curvas de supervivencia de la variable 
+			tiempo en meses por género.]{
+				\label{fig:survivalsexo}
+				\includegraphics[width=0.4\linewidth]{imagenes/sexo}}
+			\caption{En las gráficas se puede observar las curvas de 
+				supervivencia de la variable tiempo por factores género y 
+				estatus 
+				de 
+				tabaquismo. }
+			\label{fig:sexo_tabaquismo}
+		\end{figure}
+		\begin{figure}[!htb]
+			\centering
+			\subfloat[Estimación de las curvas de supervivencia de la \mbox{  }
+			variable tiempo en meses por Edad.]{
+				\label{fig:survivaledad}
+				\includegraphics[width=0.4\linewidth]{imagenes/edades}}
+			\subfloat[Estimación de las curvas de supervivencia de la variable 
+			tiempo en meses por tipo de producto.]{
+				\label{fig:survivalproducto}
+				\includegraphics[width=0.4\linewidth]{imagenes/producto}}
+			\caption{En las gráficas se puede observar las curvas de 
+				supervivencia de la variable tiempo por factores edad y tipo de 
+				producto contratado. }
+			\label{fig:edades_producto}
+		\end{figure}
+		
+		
+		\begin{multicols}{2}
+		A continuación se plantean las hipótesis a juzgar para corroborar lo 
+		visto en las gráficas de curvas de supervivencia. Para todas Se 
+		considerará un nivel de significancia del 5\%.
+		
+		\subsection{Clasificación por tabaquismo}
+		Como se ha mencionado anteriormente, se quiere comprobar si puede 
+		existir algún efecto por el tabaquismo del asegurado en el tiempo, en 
+		meses, en que fallece a partir de que contrató la póliza por lo que las 
+		hipótesis son:\\
+		
+		\noindent$H_0$: La curva de supervivencia para asegurados que fuman es 
+		igual a la de los que no fuman para todo tiempo $t\geq 0$\\
+		vs\\
+		$H_1$: La curva de supervivencia para los asegurados que fuman difiere 
+		a la de los que no fuman para alguna $t\geq 0$\\ 
+		
+		En notación matemática se escribe como\\
+		$H_0: S(t)_H = S(t)_M,\quad \forall\, t, t\geq 0$\\
+		vs \\
+		$H_1: S(t_0)_H \neq S(t_0)_M,\quad \text{ para algún } t_0\geq0$.
+		
+		Al realizarse la prueba se obtuvo un valor p$=$0.9 por lo que con un 
+		nivel de confianza del 95\% no se rechaza la hipótesis nula, es decir, 
+		no hay evidencia suficiente para decir que la curva de supervivencia 
+		para asegurados que fuman es estadísticamente diferente a la de los 
+		asegurados que no fuman.
+		\subsection{Clasificación por producto}
+		Realizando la prueba de hipótesis para la clasificación por producto 
+		contratado, se obtiene que las hipótesis a plantar son:\\
+		
+		\noindent$H_0$:Las curvas de supervivencia de las personas agrupadas 
+		por el producto elegido, son iguales para todo tiempo $t\geq 0$\\
+		vs \\
+		$H_1$:Las curvas de supervivencia de las personas agrupadas por el 
+		producto elegido no son iguales para algún tiempo $t\geq 0$.\\
+		
+		En notación matemática se escribe como\\
+		$H_0: S(t)_i = S(t)_j,\quad \forall\, i,j,t \text{ con } i\neq j, t\geq 
+		0$ \\
+		vs \\
+		$H_1: S(t_0)_i \neq S(t_0)_j,$ \\
+		$\text{para algún par }i,j, \text { y tiempo } t_0\geq 0 \text{ con } 
+		i\neq j$ donde, $ i,j $ toman valores en $ \{1,2,3,4 \} $.
+		
+		Al realizar la prueba de hipótesis planteada, se obtuvo que con un 
+		nivel de confianza del 95\% y un valor p$=$0.000005 se rechaza la 
+		hipótesis nula, es decir, existe evidencia suficiente para decir al 
+		menos una curva de supervivencia para el tipo de producto contratado es 
+		estadísticamente diferente con respecto a otra. \\
+		Ya que se rechazó la hipótesis nula, se prosigió a realizar 
+		comparaciones múltiples por la prueba de Peto \& Peto con el p-valor 
+		ajustado por el método de Bonferroni para determinar cuáles son los 
+		niveles de la variable \verb|Producto| que podrían combinarse para 
+		crear subpoblaciones.
+		Se obtuvo que en todas no se podía rechazar la hipótesis nula a 
+		excepción de las siguientes
+		\begin{itemize}
+			\item Con un valor p$=$0.0022 se rechaza la hipótesis nula, es 
+			decir, existe evidencia suficiente para decir que la curva de 
+			supervivencia para asegurados que contrataron Whole Life es 
+			estadísticamente diferente a la de los asegurados que contrataron 
+			Term.
+			\item Con un valor p$=$000063 se rechaza la hipótesis nula, es 
+			decir, existe evidencia suficiente para decir que la curva de 
+			supervivencia para asegurados que contrataron Universal Life es 
+			estadísticamente diferente a la de los asegurados que contrataron 
+			Whole Life.
+			\item Con un valor p$=$0.0063 se rechaza la hipótesis nula, es 
+			decir, existe evidencia suficiente para decir que la curva de 
+			supervivencia para asegurados que contrataron Universal Life es 
+			estadísticamente diferente a la de los asegurados que contrataron 
+			un seguro perteneciente a la categoría de Otros.
+		\end{itemize}
+		
+		
+		
+		\subsection{Clasificación por género}
+		Realizando la prueba de hipótesis para la clasificación por género, se 
+		obtiene que las hipótesis a plantar son:
+		\noindent$H_0$: La curva de supervivencia para los asegurados hombres 
+		es igual a la de las mujeres para todo tiempo $t\geq 0$\\
+		vs\\
+		$H_1$: La curva de supervivencia para los asegurados hombres difiere a 
+		la de las mujeres para alguna $t\geq 0$\\ 
+		
+		En notación matemática se escribe como\\
+		$H_0: S(t)_H = S(t)_M,\quad \forall\, t, t\geq 0$\\
+		vs \\
+		$H_1: S(t_0)_H \neq S(t_0)_M,\quad \text{ para algún } t_0\geq0$.
+		Al realizarse la prueba se obtuvo un valor p$=$0.9 por lo que con un 
+		nivel de confianza del 95\% no se rechaza la hipótesis nula, es decir, 
+		no hay evidencia suficiente para decir que la curva de supervivencia 
+		para asegurados hombres es estadísticamente diferente a la de los 
+		asegurados mujeres.
+		
+		\subsection{Clasificación por rango de edad}
+		Realizando la prueba de hipótesis para la clasificación por rango de 
+		edad al momento de contratar la póliza, se obtiene que las hipótesis a 
+		plantar son:\\
+		
+		\noindent$H_0$:Las curvas de supervivencia de las personas agrupadas 
+		por el rango de edad, son iguales para todo tiempo $t\geq 0$\\
+		vs \\
+		$H_1$:Las curvas de supervivencia de las personas agrupadas por el 
+		rango de edad no son iguales para algún tiempo $t\geq 0$.\\
+		
+		En notación matemática se escribe como\\
+		$H_0: S(t)_i = S(t)_j,\quad \forall\, i,j,t \text{ con } i\neq j, t\geq 
+		0$ \\
+		vs \\
+		$H_1: S(t_0)_i \neq S(t_0)_j,$ \\
+		$\text{para algún par }i,j, \text { y tiempo } t_0\geq 0 \text{ con } 
+		i\neq j$ donde, $ i,j $ toman valores en $ \{1,2,3,4, 5 \} $.
+		Al realizar la prueba de hipótesis planteada, se obtuvo que con un 
+		nivel de confianza del 95\% y un valor p$=$0.008 se rechaza la 
+		hipótesis nula, es decir, existe evidencia suficiente para decir al 
+		menos una curva de supervivencia para el rango de edad es 
+		estadísticamente diferente con respecto a otra. \\
+		Ya que se rechazó la hipótesis nula, se prosigió a realizar 
+		comparaciones múltiples por la prueba de Peto \& Peto con el p-valor 
+		ajustado por el método de Bonferroni para determinar cuáles son los 
+		niveles de la variable \verb|Rango de Edad| que podrían combinarse para 
+		crear subpoblaciones.
+		Se obtuvo que en todas no se podía rechazar la hipótesis nula a 
+		excepción de las siguientes:
+		\begin{itemize}
+			\item Con un valor p$=$0.00071 se rechaza la hipótesis nula, es 
+			decir, existe evidencia suficiente para decir que la curva de 
+			supervivencia para asegurados dentro del rango de edad entre 80 y 
+			84 años es estadísticamente diferente a la de los asegurados que al 
+			contratar tenían 69 años o menos.
+			\item Con un valor p$=$0.00022 se rechaza la hipótesis nula, es 
+			decir, existe evidencia suficiente para decir que la curva de 
+			supervivencia para asegurados que al contratar contaban con 85 años 
+			o más es estadísticamente diferente a la de los asegurados que al 
+			contratar tenían 69 años o menos.
+		\end{itemize}
+		
+	
+	    \section{Ajuste del modelo de Cox}
+De los factores mencionados en la sección anterior se procederá a crear 
+un modelo con estos factores que busque estimar la función de 
+supervivencia del tiempo de vida de una persona de edad mayor a 64 
+años. Por el numero de factores que se tiene y por el principio de 
+economizar al recopilar datos, a continuación realizaremos una serie de 
+iteraciones a la salida y entrada de factores a un modelo simple hasta 
+un modelo más complejo con el fin de ver que combinación de factores 
+aumenta sus significancias, y de esta manera tener el mejor modelo 
+posible.
+
+\subsection{Hipótesis}
+Para la construcción del modelo se requiere saber cuáles variables y factores 
+se agregarían a éste con el fin de detectar aquellas que aporten información 
+relevante. Esto es equivalente a que, en un sentido estricto, el coeficiente 
+acompañante de dicha variable sea diferente de cero. Es muy importante recalcar 
+que, dada la muestra obtenida, algunas variables quizás no sean consideradas en 
+el modelo (en el sentido de que haya evidencia que $ \beta_i=0 $) aunque por la 
+experiencia y literatura, sea demostrable que a pesar de que estadísticamente 
+no debe considerarse dicha variable, sí se tenga que agregar por el efecto que 
+ésta aporta pero que quizás no se refleja en la muestra utilizada. 
+
+Las hipótesis son:
+$$ H_0:\, \beta_i=0\;\mbox{vs}\;H_1:\,\beta_i\neq 0, $$
+que se puede interpretar como\\
+\indent $ H_0: $ se debe considerar la $ i $-ésima variable/factor en el modelo 
+dado que las otras variables/factores están consideradas en éste,
+
+\indent $ H_1: $ no se debe considerar la $ i $-ésima variable/factor en el 
+modelo dado que las otras variables/factores están consideradas en éste.
+
+El estadístico de prueba que se utiliza es el siguiente:
+$$ \hat{z}_i=\frac{\hat{\beta}_i}{se(\hat{\beta}_i)} $$
+el cual sigue una distribución asintótica normal estándar. Se rechaza la 
+hipótesis nula a un nivel de significación $ \alpha=0.05 $.
+
+\subsection{Construcción del modelo}
+Primero partimos de un modelo donde solo se incluyen las variables de forma 
+individual.
+
+Para la variable \verb|Producto| se tienen 4 niveles de los cuales, \verb|Term| 
+se va a riesgo base y \verb|Whole life| y \verb|Other| resultan candidatos al 
+modelo; por otro lado, \verb|Universal life| no sería candidato para el modelo 
+al nivel de significación dado.
+
+Para las variable \verb|Edad| resulta ser candidato para el modelo.
+
+Luego los modelos tanto para \verb|Fumador| (no fuma) como \verb|Sexo| (hombre) 
+no resultaron candidatos para los respectivos modelos.
+
+Posteriormente hicimos modelos con dos variables: considerando todas las 
+combinaciones de las variables \verb|Edad|, \verb|Sexo| y \verb|Fumar|; 
+solamente \verb|Edad| resultó ser considerada en los modelos (donde se incluía) 
+mientras que \verb|Sexo| y \verb|Fumar| no. Luego, se formuló un modelo 
+considerando las tres anteriores pero de nuevo resultó apropiado considerar 
+solamente \verb|Edad|.
+
+Lo siguiente fue considerar el modelo anterior agregando las interacciones 
+entre \verb|Fumar|, \verb|Sexo| y \verb|Edad|. También fueron desechados del 
+modelo excepto \verb|Edad|.
+
+Luego, se consideraron modelos de dos variables considerando las interacciones, 
+siendo \verb|Fumar*Edad|, \verb|Sexo*Edad| y \verb|Fumar*Sexo|, sin embargo, de 
+nuevo se desechan todas interacciones quedando solamente \verb|Edad| como 
+posible candidato al modelo.
+
+El paso siguiente fue agregar las 4 variables (sin interacciones), lo cual 
+resultó en que \verb|Edad|, \verb|Whole life| y \verb|Other| resultaron 
+posibles candidatos para el modelo mientras que \verb|Fumar|, \verb|Sexo| y 
+\verb|Universal life| no.
+
+Como el factor \verb|Producto| resultó un posible candidato, el siguiente 
+modelo consideró \verb|Edad|, \verb|Term|, \verb|Whole life| y 
+\verb|Universallife|. Se mandó a riesgo base \verb|Other| en lugar de 
+\verb|Term| ya que ese 
+tipo de seguro es más general en el sentido de que no se tiene una definición 
+específica del producto (es cualquier otro tipo de seguro) por lo que se 
+considera más apropiado que el ese seguro sea mandado al riesgo base por su 
+``generalidad''. Los resultados mostraron que todas las variables excepto 
+\verb|Whole life|\footnote{Esa variable tuvo un p-valor de 0.053531, por lo que 
+puede ser discutible su inclusión en el modelo.} fueron posibles candidatos. 
+
+Luego al modelo anterior se le agregó la variable \verb|Sexo| pero siguió sin 
+ser un candidato al modelo. También se agregó la variable \verb|Fumar| y 
+ocurrió que tanto \verb|Fumar| y \verb|Whole life| deberían salir del modelo. 
+Entonces, se procedió a quitar \verb|Whole life| del modelo dándole una mejor 
+aceptación a la variable \verb|Fumar| en el sentido que su p-valor disminuyó de 
+un 0.47 a 0.093 con respecto al modelo anterior (el que incluía a 
+\verb|Wholelife|). Esto es conveniente para el estudio ya que se tiene 
+evidencia de que 
+fumar tiene un efecto negativo en la calidad de vida en los ciudadanos de 
+Estados Unidos\cite{articulo_fumar}.
+
+Luego, del modelo anterior, se intercambió la variable \verb|Fumar| por 
+\verb|Sexo| ya que también se sabe es importante el efecto de este factor (sino 
+no habrían tablas de vida para hombres y mujeres). Sin embargo, al final no 
+mostró evidencia de que aporte un efecto estadísticamente considerable en el 
+modelo.
+
+Posteriormente se analizaron las interacciones entre las variables del modelo 
+previo con \verb|Fumar|. Al final las interacciones no aportaron un efecto 
+estadísticamente significativo en el modelo por lo que el modelo final a 
+considerar fue con las variables \verb|Edad|, \verb|Fumar|, \verb|Term| y 
+\verb|Universal life|.
+
+\subsection{Modelo de Cox}
+
+\begin{align}\label{model}
+h_T(t;X)\;&=\;h_0(t)\exp\left\{0.05191\mbox{Edad}-1.2145\mbox{Term}\right.\\\nonumber
+&\left.-1.80304\mbox{Universal life}-0.40683\mbox{Fumar}\right\}
+\end{align}
+\end{multicols}
+\begin{table}[htbp]
+\centering
+\caption{En la tabla se puede observar las variables a considerar en el modelo 
+final. Nótese que la variable Fumar se consideró en el modelo a pesar que su 
+p-valor no fue menor al nivel de significación por su importancia que se tiene 
+con base en la literatura.}
+\begin{tabular}{lrrrrr}
+	\toprule
+	& \multicolumn{1}{l}{\textbf{coef}} & 
+	\multicolumn{1}{l}{\textbf{exp(coef)}} & 
+	\multicolumn{1}{l}{\textbf{se(coef)}} & \multicolumn{1}{l}{\textbf{z}} & 
+	\multicolumn{1}{l}{\textbf{$Pr(>|z|)$}} \\
+	\midrule
+	\textbf{Edad} & 0.05191 & 1.05328 & 0.01642 & 3.162 & \textcolor[rgb]{ 1,  
+	0,  0}{0.001569} \\
+	\textbf{I(Producto == ``Term'')TRUE} & -1.2145 & 0.29686 & 0.32784 & -3.705 
+	& \textcolor[rgb]{ 1,  0,  0}{0.000212} \\
+	\textbf{I(Producto == ``Universal Life'')TRUE} & -1.80304 & 0.1648 & 
+	0.38649 & -4.665 & \textcolor[rgb]{ 1,  0,  0}{3.08E-06} \\
+	\textbf{FumarNo Fuma} & -0.40683 & 0.66575 & 0.24215 & -1.68 & 0.092936 \\
+	\bottomrule
+\end{tabular}%
+\label{tab:finalmodel}%
+\end{table}%
+
+\begin{table}[htbp]
+\centering
+\caption{Resultados de la comprobación de riesgos proporcionales.}
+\begin{tabular}{lrrr}
+	\toprule
+	& \multicolumn{1}{l}{$\rho$} & \multicolumn{1}{l}{$\chi^2$} & 
+	\multicolumn{1}{l}{$p$} \\
+	\midrule
+	\textbf{Edad} & -0.0913 & 0.572 & 0.45 \\
+	\textbf{I(Producto == "Term")TRUE} & -0.0418 & 0.144 & 0.705 \\
+	\textbf{I(Producto == "Universal Life")TRUE} & -0.1126 & 1.201 & 0.273 \\
+	\textbf{FumarNo Fuma} & -0.0395 & 0.132 & 0.716 \\
+	\textbf{GLOBAL} &       & 1.815 & 0.77 \\
+	\bottomrule
+\end{tabular}%
+\label{tab:zph}%
+\end{table}
+
+\begin{multicols}{2}
+\section{Validación de modelo}
+Para la validación del modelo se requiere que se cumplan los supuestos de 
+riesgos proporcionales y linealidad.
+
+\subsection{Supuesto de riesgos proporcionales}
+La prueba que se utilizó para corroborar este supuesto está basada en los 
+residuos de Schoenfeld, en el que se definen a los coeficientes el modelo como 
+una función del tiempo. Las hipótesis son las siguientes:
+$$ H_0:\,\beta_i(t)=\beta_i\;\mbox{vs}\;H_1:\beta_i(t)\neq \beta_i, $$
+que se puede interpretar como\\
+\indent $ H_0 $: Los coeficientes del modelo no varían con el tiempo,\\
+\indent $ H_1 $: Los coeficientes del modelo varían con el tiempo.\\
+
+El estadístico de prueba puede consultarse en \cite{patricia} y se sabe sigue 
+una distribución asintóticamente $ \chi^2_p $.
+
+De acuerdo con la Tabla \ref{tab:zph}, a un nivel de confianza del 95\% hay 
+evidencia suficiente de que el modelo propuesto en (\ref{model}) cumple el 
+supuesto de riesgos proporcionales, es decir, los coeficientes no varían en el 
+tiempo.
+\newpage
+\subsection{Linealidad}
+Para verificar la linealidad, se muestra el gráfico \ref{fig:linealidad} con 
+los residuos martingalas en la que se puede notar que de manera conjunta no 
+muestra una tendencia lineal, lo que sugeriría que se necesita una 
+transformación para cada variable.
+
+\end{multicols}
+
+\begin{figure}[htb!]
+\centering
+\includegraphics[width=0.7\linewidth]{imagenes/linealidad}
+\caption{Gráfico de residuos martingala.}
+\label{fig:linealidad}
+\end{figure}
+\begin{figure}[htb!]
+	\centering
+	\includegraphics[width=0.7\linewidth]{imagenes/linealidadEdad}
+	\caption{Gráfico de residuos martingala.}
+	\label{fig:linealidadedad}
+\end{figure}
+
+respecto a la linealidad de las variables, en este caso la única a la que se le 
+puede realizar una validación es a la variable edad, de acuerdo con 
+(\ref{fig:linealidadedad}) se sugiere que no hay problema con el supuesto.
+
+\section{Interpretación}
+Ya que se cumple el supuesto de riesgos proporcionales y el de linealidad se 
+garantiza que el modelo se ajusta adecuadamente a los datos trabajados.\\
+
+Una forma equivalente del modelo (\ref{model}) es la siguiente
+\begin{align}\label{modellog}
+\ln\left[ \frac{ 
+h_T(t;X)}{h_0(t)}\right] 
+&=0.05191\mbox{Edad}-1.2145\mbox{Term}-1.80304\mbox{Universal 
+life}-0.40683\mbox{Fumar}
+\end{align}
+el cuál se interpreta de la siguiente forma:
+\begin{itemize}
+\item 0.05191 es el logaritmo del riesgo relativo cuando la edad aumenta una 
+unidad, manteniéndose constantes las demás variables, y por tanto, 
+$e^{0.05191}=1.53$ es el riesgo relativo cuando la edad aumenta una unidad, 
+manteniéndose constantes las demás.
+
+\item -1.2145 es el logaritmo del riesgo relativo cuando el asegurado contrata 
+un seguro de de vida Temp, manteniéndose constantes las demás variables, y por 
+tanto, $e^{-1.2145}=0.2968$ es el riesgo relativo cuando se cuenta con un 
+riesgo Temp con respecto a los asegurados que tiene un seguro dentro de la 
+categoría Other, manteniéndose constantes las demás. Por lo que las personas 
+con un term son 70.32\% menos probable que tenga reclamaciones que las personas 
+con un producto Other.
+
+\item -1.80304 es el logaritmo del riesgo relativo cuando el asegurado contrata 
+un seguro de de vida Universal Life, manteniéndose constantes las demás 
+variables, 
+y por tanto, $e^{-1.80304}=0.16479$ es el riesgo relativo cuando se cuenta 
+con un 
+riesgo Whole Life con respecto a los asegurados que tiene un seguro dentro de 
+la categoría Other, manteniéndose constantes las demás.Por lo que las personas 
+con un Universal life son 83.52\% menos probable que tenga reclamaciones que 
+las personas con un producto Other.
+
+\item $-0.40683$ es el logaritmo del riesgo relativo cuando el asegurado no 
+fuma 
+manteniéndose constantes las demás variables, y por tanto, 
+$e^{-0.40683}=0.6657$ 
+es el riesgo relativo cuando el asegurado fuma, manteniéndose constantes las 
+demás.Por lo que las personas que no fuman no 0.3343\% menos probable que tenga 
+reclamaciones que las personas que si fuman.
+\end{itemize}
+\newpage
+\section{Referencias}
+\renewcommand{\refname}{}
+\vspace{-1cm}
+\begin{thebibliography}{X}
+	\bibitem{term} Kagan, J. (n.d.). Term Life Insurance. Retrieved 
+	December 8, 2019, from https://www.investopedia.com/terms/t/termlife.asp
+	
+	\bibitem{whole} Kagan, J. (n.d.). Traditional Whole Life Policy. 
+	Retrieved December 8, 2019, from 
+	https://www.investopedia.com/terms/t/traditionalwholelifepolicy.asp
+	
+	\bibitem{universal} Kagan, J. (2019). Universal Life Insurance. 
+	08/12/2019, de investopedia.com Sitio web: 
+	https://www.investopedia.com/terms/u/universallife.asp
+	
+	\bibitem{articulo_fumar} Goldenberg, M., Danovitch, I., \& IsHak, W. W. 
+	(2014). Quality of life and smoking. The American Journal on Addictions, 
+	23(6), 540?562. https://doi.org/10.1111/j.1521-0391.2014.12148.x
+	
+	\bibitem{patricia} Grambsch, P. M., \& Therneau, T. M. (1994). Proportional 
+	Hazards Tests and Diagnostics Based on Weighted Residuals. Biometrika, 
+	81(3), 515?526. https://doi.org/10.2307/2337123
+\end{thebibliography}
+
+
+
+\section{Anexos}
+% Table generated by Excel2LaTeX from sheet 'Hoja1'
+\begin{table}[htbp]
+\centering
+\caption{Valores de los p-valores, en orden según la formula ingresada en R}
+\begin{tabular}{ccc}
+	\toprule
+	\multicolumn{1}{l}{\textbf{factor(Producto)}} & 
+	\multicolumn{1}{l}{\textbf{Fumar + Sexo + Edad}} & 
+	\multicolumn{1}{l}{\textbf{Fumar * Sexo}} \\
+	\midrule
+	\rowcolor[rgb]{ .851,  .851,  .851} 0.000417 *** & 0.86415 & 0.488 
+	\\
+	0.054917 .   & 0.77112 & 0.315 \\
+	\rowcolor[rgb]{ .851,  .851,  .851} 0.03285 * & 0.00123 ** & 0.271 
+	\\
+	\bottomrule
+\end{tabular}%
+\label{tablauno}
+\end{table}%
+Podemos ver como el modelo con los factores de producto(Term, Whole 
+	life, Universal life y Other) en la tabla (\ref{tablauno}) muestra mayor 
+	cantidad de variables con 
+	p-valor 
+	menor a 0.05, es decir, no hay evidencia significativa de que los 
+	coeficientes 
+	de estos factores sean cero.
+
+% Table generated by Excel2LaTeX from sheet 'Hoja1'
+\begin{table}[htbp]
+\centering
+\caption{Valores de los p-valores, en orden según la formula ingresada en R}
+\begin{tabular}{ccc}
+	\toprule
+	\multicolumn{1}{l}{\textbf{Fumar + Sexo}} & 
+	\multicolumn{1}{l}{\textbf{Sexo + Edad}} & 
+	\multicolumn{1}{l}{\textbf{ Fumar + Edad}} \\
+	\midrule
+	\rowcolor[rgb]{ .851,  .851,  .851} 0.97  & 0.7847 & 0.88957 \\
+	0.78  & 0.00125 ** & 0.00123 ** \\
+	\bottomrule
+\end{tabular}%
+\label{tablados}
+\end{table}%
+Podemos ver como los modelos con los factores edad en la tabla (\ref{tablados}) 
+muestra un p-valor 
+menor a 0.05, es decir, no hay evidencia significativa de que los 
+coeficientes 
+de estos factores sean cero.
+
+% Table generated by Excel2LaTeX from sheet 'Hoja1'
+\begin{table}[htbp]
+\centering
+\caption{Valores de los p-valores, en orden según la formula ingresada en R}
+\begin{tabular}{ccc}
+	\toprule
+	\multicolumn{1}{l}{\textbf{ Fumar}} & \multicolumn{1}{l}{\textbf{ 
+			Edad}} & \multicolumn{1}{l}{\textbf{Sexo}} \\
+	\midrule
+	\rowcolor[rgb]{ .851,  .851,  .851} 0.996 & 0.00125 ** & 0.782 \\
+	\bottomrule
+\end{tabular}%
+\label{tablatres}
+\end{table}%\
+En la tabla (\ref{tablatres}) se muestra como en un modelo sencillo donde solo 
+se considera un solo factor de una lista de 3, cuales resulta significativos, 
+solo edad muestra un p-valor menor a 0.05.\\
+
+% Table generated by Excel2LaTeX from sheet 'Hoja1'
+\begin{table}[htbp]
+	\centering
+	\caption{Valores de los p-valores, en orden según la formula ingresada en R}
+	\begin{tabular}{ccc}
+		\toprule
+		\textbf{Sexo * Edad} & \textbf{ Fumar * Edad} & 
+		\multicolumn{1}{p{14.93em}}{\textbf{Edad + Term + Whole.life + 
+				Universal.life + Sexo}} \\
+		\midrule
+		\rowcolor[rgb]{ .851,  .851,  .851} 0.112155 & 0.8262 & 0.000988 
+		*** \\
+		0.000597 *** & 0.0178 * & 0.022631 *   \\
+		\rowcolor[rgb]{ .851,  .851,  .851} 0.105021 & 0.836 & 0.047381 *   
+		\\
+		&       &  0.000440 *** \\
+		\rowcolor[rgb]{ .851,  .851,  .851}       &       & 0.628868 \\
+		\bottomrule
+	\end{tabular}%
+	\label{tablacuatro}%
+\end{table}%
+\newpage
+Por otro lado tenemos que para modelos con interacciones, podemos usar en R la 
+formula denotada por (factor*factor2) la cual es equivalente a 
+(factor+factor2+factor:factor2), tendremos que ninguna interacción de la tabla 
+(\ref{tablacuatro}) muestra tener un p-valor menor a 0.05, solo el modelo con 
+Edad, Term, Whole life, Universal life y sexo tiene p-valores menores a 0.05, a 
+excepción de la variable sexo, con un p-valor de 0.628868. \\
+
+% Table generated by Excel2LaTeX from sheet 'Hoja1'
+\begin{table}[htbp]
+	\centering
+	\caption{Valores de los p-valores, en orden según la formula ingresada en R}
+	\begin{tabular}{ccc}
+		\toprule
+		\multicolumn{1}{l}{\textbf{Fumar* Sexo *Edad }} & 
+		\multicolumn{1}{p{14.93em}}{\textbf{Fumar+Sexo+Edad+Whole.life + 
+		Universal.life+Other}}  & 
+		\multicolumn{1}{p{14.93em}}{\textbf{Edad + Term + Whole.life + 
+				Universal.life}} \\
+		\midrule
+		\rowcolor[rgb]{ .851,  .851,  .851} 0.8907 & 0.43642 & 0.000942 *** 
+		\\
+		0.2903 & 0.57132 & 0.024307 *   \\
+		\rowcolor[rgb]{ .851,  .851,  .851} 0.0169 * & 0.00112 **  & 
+		0.053531 .   \\
+		0.2457 & 6.74e-05 *** & 0.000423 *** \\
+		\rowcolor[rgb]{ .851,  .851,  .851} 0.8243 & 0.1476 &  \\
+		& 0.02019 * &  \\
+		\bottomrule
+	\end{tabular}%
+	\label{tablacinco}%
+\end{table}% 
+
+Y por último tenemos un análisis de los modelos más complejos, aquellos que 
+tienen mayor numero de variables, en la tabla (\ref{tablacinco}) podemos ver 
+como la suma de todas las variables sin interacciones tiene una salida de 
+p-valores donde la mitad de las variables resultan no significativas, mientras 
+que con una $ \alpha=0.06 $ se puede aceptar todas las variables del modelo 3 
+de dicha tabla (la numero \ref{tablacinco}) ya que el menor de ellos tiene un 
+p-valor de 0.053.
+
+\end{document}
