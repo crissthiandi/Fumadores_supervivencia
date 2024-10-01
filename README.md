@@ -15,3 +15,5 @@ La base de datos esta conformada por
   (valor 1).
 * Tiempo: número de meses desde la fecha de emisión
   de la póliza hasta la fecha de fallecimiento del titular de la póliza o de la que se tiene último registro.
+
+![{20D41553-2C47-4096-9C03-787C5F9D4148}](https://github.com/user-attachments/assets/4e3e119c-e929-465a-ad38-857a3b407379)
